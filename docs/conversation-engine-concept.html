@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoboEd · Human Conversation Engine — Architecture Concept</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2a;--panel2:#102438;--border:#1d3a52;--text:#e8f0f7;--muted:#8fa7ba;--cyan:#38bdf8;--green:#34d399;--yellow:#fbbf24;--pink:#fb7185}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#15344d 0,#07111f 45%);color:var(--text);font:14px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:1200px;margin:auto;padding:28px 18px 60px}.hero{padding:28px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,rgba(16,36,56,.96),rgba(8,20,32,.96));box-shadow:0 25px 70px #0005}.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.hero h1{font-size:clamp(28px,5vw,48px);line-height:1.03;margin:10px 0}.hero p{max-width:800px;color:var(--muted);font-size:16px;line-height:1.65}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}.chip{border:1px solid #24506a;background:#081b2b;border-radius:999px;padding:7px 10px;font-size:11px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.card{background:rgba(13,27,42,.94);border:1px solid var(--border);border-radius:15px;padding:16px}.card h2{font-size:15px;margin:0 0 8px}.card p,.card li{color:var(--muted);line-height:1.55}.card ul{padding-left:18px;margin:8px 0}.wide{grid-column:1/-1}.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;align-items:stretch}.node{padding:12px 8px;border:1px solid #1c4962;background:#081a2a;border-radius:10px;text-align:center;font-size:11px}.node b{display:block;margin-bottom:4px}.arrow{display:flex;align-items:center;justify-content:center;color:var(--cyan)}.section-title{margin:26px 0 10px;font-size:18px}.bar{height:8px;background:#172c3d;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;width:var(--w);background:var(--c,var(--cyan));border-radius:inherit}.item{margin:11px 0}.item-top{display:flex;justify-content:space-between;gap:10px;font-size:12px}.tag{font-size:9px;font-weight:800;letter-spacing:.07em;color:var(--green)}.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.phase{border-left:3px solid var(--cyan);padding:12px;background:#081725;border-radius:0 10px 10px 0}.phase:nth-child(2){border-color:var(--green)}.phase:nth-child(3){border-color:var(--yellow)}.phase:nth-child(4){border-color:var(--pink)}.phase b{display:block}.phase small{color:var(--muted);line-height:1.5}.quote{border-left:3px solid var(--cyan);padding:12px 15px;background:#081725;color:#d8e6ef;border-radius:0 10px 10px 0;line-height:1.6}.footer{margin-top:20px;color:#5f788d;font-size:11px}@media(max-width:850px){.grid,.roadmap{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);height:10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+<div class="eyebrow">Aurora · Human Conversation Engine</div>
+<h1>RoboEd Conversational Core</h1>
+<p>Mapa visual da arquitetura atual e do que ainda precisa existir para transformar a configuração em um agente que conversa de forma fluida, contextual e humana — sem exigir conhecimento de nível doutoral para funcionar bem.</p>
+<div class="chips"><span class="chip">pt-BR</span><span class="chip">context-aware</span><span class="chip">memory-aware</span><span class="chip">natural repair</span><span class="chip">grounded</span><span class="chip">hybrid runtime</span></div>
+</section>
+
+<h2 class="section-title">1 · O que já existe no repositório</h2>
+<div class="grid">
+<div class="card"><h2>🧠 Política conversacional</h2><p>A configuração 1.0.0 já define objetivo, naturalidade, contexto relevante, não repetição, não invenção e esclarecimento quando necessário.</p></div>
+<div class="card"><h2>🗣️ Language pipeline</h2><p>Normalização → intenção → entidades → referências → contexto → conhecimento → ação → resposta → validação.</p></div>
+<div class="card"><h2>💾 Memória</h2><p>Há desenho para memória de curto e longo prazo, com recuperação apenas do contexto relevante e política explícita de armazenamento.</p></div>
+<div class="card"><h2>🔎 Knowledge</h2><p>Quatro camadas: contexto local, base da aplicação, modelo de linguagem e pesquisa externa, com regra de verdade e regra de desconhecido.</p></div>
+<div class="card"><h2>🛠️ Repair</h2><p>O arquivo já prevê resolução de “isso”, “aquele”, erros de transcrição, correções do usuário e esclarecimento quando a ambiguidade muda a ação.</p></div>
+<div class="card"><h2>🧪 Observabilidade</h2><p>Eventos de mensagem, intenção, contexto, lookup, resposta, fallback, desconhecido e erro de provider já estão previstos.</p></div>
+</div>
+
+<h2 class="section-title">2 · O ciclo que precisamos implementar</h2>
+<section class="card wide">
+<div class="flow">
+<div class="node"><b>Mensagem</b>fala real do usuário</div><div class="arrow">→</div>
+<div class="node"><b>Entender</b>intenção + entidades</div><div class="arrow">→</div>
+<div class="node"><b>Contextualizar</b>referentes + estado</div><div class="arrow">→</div>
+<div class="node"><b>Decidir</b>responder / perguntar / agir</div><div class="arrow">→</div>
+<div class="node"><b>Gerar</b>linguagem natural</div>
+</div>
+<p style="margin:14px 0 0;color:var(--muted)">A configuração já descreve esse ciclo; o repositório ainda precisa transformar a descrição em componentes executáveis e testes.</p>
+</section>
+
+<h2 class="section-title">3 · Básico para falar como uma pessoa normal</h2>
+<div class="grid">
+<div class="card wide"><h2>Não precisamos de “um cérebro gigante” para começar.</h2><div class="item"><div class="item-top"><span>1. Modelo de linguagem / provider</span><span class="tag">ESSENCIAL</span></div><div class="bar" style="--w:100%"></div></div><div class="item"><div class="item-top"><span>2. Estado da conversa</span><span class="tag">ESSENCIAL</span></div><div class="bar" style="--w:95%"></div></div><div class="item"><div class="item-top"><span>3. Resolução de referência (“isso”, “ele”, “aquele”)</span><span class="tag">ESSENCIAL</span></div><div class="bar" style="--w:92%"></div></div><div class="item"><div class="item-top"><span>4. Intenção + objetivo da fala</span><span class="tag">ESSENCIAL</span></div><div class="bar" style="--w:90%"></div></div><div class="item"><div class="item-top"><span>5. Turn-taking e reparo conversacional</span><span class="tag">ESSENCIAL</span></div><div class="bar" style="--w:88%"></div></div><div class="item"><div class="item-top"><span>6. Memória relevante, não histórico bruto</span><span class="tag">ESSENCIAL</span></div><div class="bar" style="--w:85%"></div></div></div>
+<div class="card"><h2>7. Pragmatics</h2><p>Entender que “tá bom então” pode significar encerramento, concordância, ironia ou resistência dependendo do contexto.</p></div>
+<div class="card"><h2>8. Repair</h2><p>Se o usuário corrigir o agente, ele precisa atualizar a interpretação em vez de insistir na leitura anterior.</p></div>
+<div class="card"><h2>9. Naturalidade</h2><p>Evitar respostas com a mesma estrutura repetida. Variar extensão, conectores e ritmo conforme a conversa.</p></div>
+<div class="card"><h2>10. Grounding</h2><p>Saber diferenciar “eu sei”, “está no contexto”, “preciso consultar” e “não sei”.</p></div>
+<div class="card"><h2>11. Ações e ferramentas</h2><p>Quando uma fala pede uma ação real, o motor precisa separar intenção de execução e receber o resultado da ferramenta antes de responder.</p></div>
+<div class="card"><h2>12. Avaliação</h2><p>Testar centenas de diálogos reais/sintéticos: referências, interrupções, mudança de assunto, erros, humor, correções e contexto longo.</p></div>
+</div>
+
+<h2 class="section-title">4 · Roadmap de construção</h2>
+<section class="roadmap">
+<div class="phase"><b>Fase 1 · Core</b><small>message → intent → state → response. Provider adapter, schema de estado, sessão e logger.</small></div>
+<div class="phase"><b>Fase 2 · Conversa</b><small>referências, entidades, repair, mudança de assunto, perguntas pendentes, continuidade e naturalidade.</small></div>
+<div class="phase"><b>Fase 3 · Memória</b><small>short-term + long-term + Memossomo como estado compacto, com recuperação seletiva e provenance.</small></div>
+<div class="phase"><b>Fase 4 · Agente</b><small>tools, knowledge, pesquisa, ações, múltiplos providers, avaliação contínua e integração com Diagnosys.</small></div>
+</section>
+
+<h2 class="section-title">5 · A arquitetura-alvo</h2>
+<section class="card wide">
+<div class="quote"><b>O modelo não precisa carregar sozinho toda a inteligência operacional.</b><br>O Conversation Engine mantém o estado, resolve contexto, escolhe a estratégia, consulta conhecimento/ferramentas e entrega ao modelo somente o que é relevante. O modelo transforma isso em linguagem natural.</div>
+<p style="margin-top:14px;color:var(--muted)">Essa separação também prepara o terreno para o Memossomo funcionar futuramente como protocolo compacto de estado entre agentes, em vez de transportar históricos inteiros.</p>
+</section>
+
+<div class="footer">Conceito arquitetural derivado da configuração AURORA-CONVERSATIONAL-CORE v1.0.0 do repositório Human-conversation-engine. A configuração descreve comportamento; ela não constitui, sozinha, uma implementação funcional.</div>
+</div>
+</body>
+</html>

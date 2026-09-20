@@ -1,0 +1,8 @@
+[
+  {"name":"pronome contextual","input":"Me explica aquilo de novo?","expect":["reference_resolution"]},
+  {"name":"correção","input":"Não, não foi isso que eu quis dizer.","expect":["repair"]},
+  {"name":"mudança de assunto","input":"Tá. E outra coisa: amanhã a gente faz o quê?","expect":["topic_change"]},
+  {"name":"fala incompleta","input":"Então... sobre aquilo...","expect":["context_recovery"]},
+  {"name":"pedido de ação","input":"Cria um arquivo com isso.","expect":["request_action"]},
+  {"name":"desconhecimento","input":"Qual é o resultado de um dado que você não consultou?","expect":["grounded_unknown"]}
+]

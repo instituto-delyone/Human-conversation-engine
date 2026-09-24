@@ -36,6 +36,8 @@
     <button class="tool" onclick="sim('reference')">⌁ Referência</button>
     <button class="tool" onclick="sim('topic')">↗ Mudar assunto</button>
     <button class="tool" onclick="generateLog()">⇩ Gerar log</button>
+    <button class="tool" onclick="document.getElementById(&quot;logFiles&quot;).click()">⇧ Ler logs</button>
+    <input id="logFiles" type="file" accept=".json,application/json" multiple hidden onchange="readLogs(this.files)">
     <button class="tool" onclick="clearAll()">⌫ Limpar conversa</button>
   </div>
 
@@ -58,6 +60,7 @@
     <div class="row"><span class="k">ação externa</span><span class="v">não executada</span></div>
     <div class="row"><span class="k">provider LLM</span><span class="v">não conectado</span></div>
   </div>
+  <h3>LOG READER</h3><div class="card" id="logReader"><span class="k">Nenhum log carregado.</span></div>
   <h3>RAW SESSION</h3><div class="card"><pre id="raw"></pre></div>
 </aside>
 </div>
@@ -157,6 +160,44 @@ function clearAll(){
   $("messages").innerHTML="";
   add("ai","Conversa limpa. Nova sessão iniciada. Pode mandar a primeira mensagem.");
   render();
+}
+
+
+function readLogs(files){
+  const list=Array.from(files||[]);
+  if(!list.length)return;
+  const reader=$("logReader");
+  reader.innerHTML='<span class="k">Lendo '+list.length+' arquivo(s)…</span>';
+  Promise.all(list.map(file=>new Promise(resolve=>{
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{resolve({name:file.name,data:JSON.parse(fr.result)})}
+      catch(e){resolve({name:file.name,error:e.message})}
+    };
+    fr.onerror=()=>resolve({name:file.name,error:"falha ao ler arquivo"});
+    fr.readAsText(file);
+  }))).then(items=>{
+    const valid=items.filter(x=>x.data);
+    const turns=valid.flatMap(x=>{
+      const s=x.data.session||x.data;
+      return Array.isArray(s.turns)?s.turns.map(t=>({...t,source:x.name})):[]
+    });
+    const intents={};
+    turns.forEach(t=>{
+      if(t.role==="user"){
+        const hit=detect(t.text||"")[0];
+        intents[hit]=(intents[hit]||0)+1;
+      }
+    });
+    reader.innerHTML=
+      '<div class="row"><span class="k">arquivos</span><span class="v">'+list.length+'</span></div>'+
+      '<div class="row"><span class="k">logs válidos</span><span class="v">'+valid.length+'</span></div>'+
+      '<div class="row"><span class="k">turnos lidos</span><span class="v">'+turns.length+'</span></div>'+
+      '<div class="row"><span class="k">intenções</span><span class="v">'+esc(JSON.stringify(intents))+'</span></div>'+
+      '<div style="margin-top:8px;color:var(--m);font-size:11px">Arquivos: '+items.map(x=>esc(x.name)+(x.error?" ⚠️":" ✓")).join("<br>")+'</div>';
+    window.LOADED_LOGS=valid;
+    window.LOADED_TURNS=turns;
+  });
 }
 
 function generateLog(){

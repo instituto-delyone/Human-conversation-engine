@@ -1,18 +1,183 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RoboEd · Conversation Lab</title><style>
-:root{--bg:#06101c;--p:#0b1a29;--p2:#10263a;--l:#1b3a52;--t:#eaf3f8;--m:#8fa8bb;--c:#38bdf8;--g:#34d399;--a:#fbbf24}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#183d58,#06101c 48%);color:var(--t);font:14px system-ui,sans-serif;height:100vh;overflow:hidden}.app{height:100vh;display:grid;grid-template-rows:64px 1fr 76px}header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--l);background:#071521e8}.brand{display:flex;gap:11px;align-items:center}.orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b8efff,#38bdf8 35%,#0a4967 70%);box-shadow:0 0 28px #38bdf855}.brand small{display:block;color:var(--m)}.pill,.tool,.quick button{border:1px solid var(--l);background:#091a29;color:#a9c1d0;border-radius:999px;padding:6px 9px;font-size:11px}.live{color:var(--g)}.main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px}.chat{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--l)}.toolbar{display:flex;gap:7px;padding:10px 14px;border-bottom:1px solid var(--l);overflow:auto}.tool{border-radius:9px;cursor:pointer;white-space:nowrap}.messages{flex:1;overflow:auto;padding:22px clamp(14px,4vw,54px);display:flex;flex-direction:column;gap:15px}.msg{max-width:min(760px,88%);padding:13px 15px;border:1px solid var(--l);border-radius:15px;line-height:1.55}.ai{align-self:flex-start;background:#0c1e2f}.user{align-self:flex-end;background:#123047}.meta{font-size:10px;color:#7590a4;margin-bottom:5px;text-transform:uppercase}.typing{display:none;color:var(--m);padding:0 18px 8px}.show{display:block}.composer{display:flex;gap:10px;padding:12px 18px;border-top:1px solid var(--l);background:#071521}.composer textarea{flex:1;resize:none;height:48px;border:1px solid var(--l);background:#0b1d2c;color:var(--t);border-radius:12px;padding:13px;font:inherit}.send{height:48px;padding:0 18px;border:0;border-radius:12px;background:var(--c);font-weight:800;cursor:pointer}.side{overflow:auto;padding:15px;background:#081521}.side h3{font-size:12px;margin:12px 0 8px}.card{border:1px solid var(--l);background:var(--p);border-radius:12px;padding:11px;margin-bottom:10px}.row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #163044;font-size:12px}.row:last-child{border:0}.k{color:var(--m)}.v{text-align:right}pre{white-space:pre-wrap;word-break:break-word;color:#9ec4d8;font-size:10px}@media(max-width:850px){.side{display:none}.main{grid-template-columns:1fr}}
-</style></head><body><div class="app"><header><div class="brand"><div class="orb"></div><div><b>RoboEd · Conversation Lab</b><small>Human Conversation Engine · sandbox</small></div></div><div><span class="pill live">● engine local</span> <span class="pill">stateful</span> <span class="pill">grounded</span></div></header>
-<div class="main"><section class="chat"><div class="toolbar"><button class="tool" onclick="sim('continue')">↪ Continuar</button><button class="tool" onclick="sim('repair')">↺ Correção</button><button class="tool" onclick="sim('reference')">⌁ Referência</button><button class="tool" onclick="sim('topic')">↗ Mudar assunto</button><button class="tool" onclick="exp()">⇩ Exportar</button><button class="tool" onclick="clearAll()">⌫ Limpar</button></div><div id="messages" class="messages"></div><div id="typing" class="typing">RoboEd está organizando o contexto…</div><div class="composer"><textarea id="input" placeholder="Fale naturalmente… Enter envia · Shift+Enter quebra linha"></textarea><button id="send" class="send">Enviar</button></div></section>
-<aside class="side"><h3>CONVERSATION STATE</h3><div class="card" id="state"></div><h3>UNDERSTANDING</h3><div class="card" id="under"></div><h3>MEMORY RETRIEVAL</h3><div class="card" id="memory"></div><h3>GROUNDING / VALIDATION</h3><div class="card"><div class="row"><span class="k">contexto</span><span class="v" style="color:var(--g)">disponível</span></div><div class="row"><span class="k">certeza não suportada</span><span class="v" style="color:var(--g)">não detectada</span></div><div class="row"><span class="k">ação externa</span><span class="v">não executada</span></div></div><h3>RAW SESSION</h3><div class="card"><pre id="raw"></pre></div></aside></div></div>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Human Conversation Engine · Lab</title>
+<style>
+:root{--bg:#06101c;--p:#0b1a29;--p2:#10263a;--l:#1b3a52;--t:#eaf3f8;--m:#8fa8bb;--c:#38bdf8;--g:#34d399;--a:#fbbf24}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#183d58,#06101c 48%);color:var(--t);font:14px system-ui,sans-serif;height:100vh;overflow:hidden}
+.app{height:100vh;display:grid;grid-template-rows:64px 1fr}.header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--l);background:#071521e8}
+.brand{display:flex;gap:11px;align-items:center}.orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b8efff,#38bdf8 35%,#0a4967 70%);box-shadow:0 0 28px #38bdf855}
+.brand small{display:block;color:var(--m)}.pill,.tool{border:1px solid var(--l);background:#091a29;color:#a9c1d0;border-radius:999px;padding:6px 9px;font-size:11px}.live{color:var(--g)}
+.main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px}.chat{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--l)}
+.toolbar{display:flex;gap:7px;padding:10px 14px;border-bottom:1px solid var(--l);overflow:auto}.tool{border-radius:9px;cursor:pointer;white-space:nowrap}
+.messages{flex:1;overflow:auto;padding:22px clamp(14px,4vw,54px);display:flex;flex-direction:column;gap:15px}.msg{max-width:min(760px,88%);padding:13px 15px;border:1px solid var(--l);border-radius:15px;line-height:1.55}
+.ai{align-self:flex-start;background:#0c1e2f}.user{align-self:flex-end;background:#123047}.meta{font-size:10px;color:#7590a4;margin-bottom:5px;text-transform:uppercase}
+.typing{display:none;color:var(--m);padding:0 18px 8px}.show{display:block}.composer{display:flex;gap:10px;padding:12px 18px;border-top:1px solid var(--l);background:#071521}
+.composer textarea{flex:1;resize:none;height:48px;border:1px solid var(--l);background:#0b1d2c;color:var(--t);border-radius:12px;padding:13px;font:inherit}.send{height:48px;padding:0 18px;border:0;border-radius:12px;background:var(--c);font-weight:800;cursor:pointer}
+.side{overflow:auto;padding:15px;background:#081521}.side h3{font-size:12px;margin:12px 0 8px}.card{border:1px solid var(--l);background:var(--p);border-radius:12px;padding:11px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #163044;font-size:12px}.row:last-child{border:0}.k{color:var(--m)}.v{text-align:right}pre{white-space:pre-wrap;word-break:break-word;color:#9ec4d8;font-size:10px}
+@media(max-width:850px){.side{display:none}.main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <div class="brand"><div class="orb"></div><div><b>Human Conversation Engine · Lab</b><small>chat local de teste · estado conversacional visível</small></div></div>
+  <div><span class="pill live">● engine local</span> <span class="pill">stateful</span> <span class="pill">sandbox</span></div>
+</header>
+
+<div class="main">
+<section class="chat">
+  <div class="toolbar">
+    <button class="tool" onclick="sim('continue')">↪ Continuar</button>
+    <button class="tool" onclick="sim('repair')">↺ Correção</button>
+    <button class="tool" onclick="sim('reference')">⌁ Referência</button>
+    <button class="tool" onclick="sim('topic')">↗ Mudar assunto</button>
+    <button class="tool" onclick="generateLog()">⇩ Gerar log</button>
+    <button class="tool" onclick="clearAll()">⌫ Limpar conversa</button>
+  </div>
+
+  <div id="messages" class="messages"></div>
+  <div id="typing" class="typing">Engine está organizando o contexto…</div>
+
+  <div class="composer">
+    <textarea id="input" placeholder="Fale naturalmente… Enter envia · Shift+Enter quebra linha"></textarea>
+    <button id="send" class="send">Enviar</button>
+  </div>
+</section>
+
+<aside class="side">
+  <h3>CONVERSATION STATE</h3><div class="card" id="state"></div>
+  <h3>UNDERSTANDING</h3><div class="card" id="under"></div>
+  <h3>MEMORY RETRIEVAL</h3><div class="card" id="memory"></div>
+  <h3>GROUNDING / VALIDATION</h3>
+  <div class="card">
+    <div class="row"><span class="k">contexto</span><span class="v" style="color:var(--g)">disponível</span></div>
+    <div class="row"><span class="k">ação externa</span><span class="v">não executada</span></div>
+    <div class="row"><span class="k">provider LLM</span><span class="v">não conectado</span></div>
+  </div>
+  <h3>RAW SESSION</h3><div class="card"><pre id="raw"></pre></div>
+</aside>
+</div>
+</div>
+
 <script>
-const S={turns:[],memory:[],topic:"conversa geral",goal:null,pending:null,phase:"opening",intent:"unknown",confidence:0};
-const $=id=>document.getElementById(id);function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function add(r,t){let e=document.createElement("div");e.className="msg "+r;e.innerHTML='<div class="meta">'+(r==="ai"?"RoboEd":"Você")+'</div><div>'+esc(t).replace(/\n/g,"<br>")+"</div>";$("messages").appendChild(e);$("messages").scrollTop=999999}
-function detect(t){t=t.toLowerCase();if(/^(oi|olá|ola|hey|bom dia|boa tarde|boa noite)\b/.test(t))return["greeting",.98];if(/não foi isso|nao foi isso|quis dizer|entendeu errado|errado/.test(t))return["repair",.97];if(/\b(isso|aquilo|ele|ela|esse|essa|aquele|aquela)\b/.test(t))return["reference",.82];if(/como faço|como eu|como funciona|o que é|qual|por que|porque/.test(t))return["question",.88];if(/vamos|quero|preciso|faça|faz|crie|monta|construa/.test(t))return["task_request",.86];if(/obrigad|valeu|fechou|beleza|tá bom|ta bom/.test(t))return["ack",.84];return["conversation",.71]}
-function reply(t,i){if(i==="greeting")return"Oi! 👋 Pode falar do jeito que vier. Se você mudar de assunto, me corrigir ou voltar a algo anterior, o motor precisa acompanhar.";if(i==="repair"){S.phase="repair";return"Entendi. Vou descartar a interpretação anterior e usar sua correção como referência. Me diz qual parte eu entendi errado."; }if(i==="reference")return"Detectei um referente como “isso/ele/essa”. No protótipo, o painel mostra a hipótese; na versão real teremos resolução ranqueada pelo contexto.";if(i==="question")return"Boa. A ideia é separar entender a pergunta, recuperar contexto, fazer grounding e só então gerar a resposta.";if(i==="task_request")return"Fechado. Isso vira objetivo/ação, não apenas texto. Depois ligamos planner + tools para decidir quando responder, perguntar ou executar.";if(i==="ack")return"Fechou. Estado mantido. Pode seguir.";return"Peguei. Neste laboratório eu mostro o ciclo por trás da fala: intenção → contexto → pragmática → memória → grounding → resposta."}
-function render(){let rows=[["tópico",S.topic],["fase",S.phase],["turnos",S.turns.length],["objetivo",S.goal||"—"],["pendência",S.pending||"—"]];$("state").innerHTML=rows.map(x=>'<div class="row"><span class="k">'+x[0]+'</span><span class="v">'+esc(String(x[1]))+"</span></div>").join("");let u=[["intenção",S.intent],["confiança",S.confidence.toFixed(2)],["pragmática",S.intent==="repair"?"correção":"continuação"],["referência",S.intent==="reference"?"candidato detectado":"—"]];$("under").innerHTML=u.map(x=>'<div class="row"><span class="k">'+x[0]+'</span><span class="v">'+x[1]+"</span></div>").join("");$("memory").innerHTML=S.memory.slice(-4).map(m=>'<div class="row"><span class="k">'+m.r+'</span><span class="v">'+esc(m.t.slice(0,65))+"</span></div>").join("")||'<span class="k">Nenhuma memória persistida.</span>';$("raw").textContent=JSON.stringify(S,null,2)}
-function send(t){t=(t||$("input").value).trim();if(!t)return;$("input").value="";add("user",t);let [i,c]=detect(t);S.intent=i;S.confidence=c;S.turns.push({r:"user",t});S.memory.push({r:"user",t});if(i==="task_request")S.goal=t;if(i==="reference")S.pending="resolver referente";$("typing").classList.add("show");setTimeout(()=>{let r=reply(t,i);add("ai",r);S.turns.push({r:"assistant",t:r});S.memory.push({r:"assistant",t:r});if(i!=="reference")S.pending=null;S.phase=S.turns.length>4?"middle":"opening";$("typing").classList.remove("show");render()},350);render()}
-function sim(k){send({continue:"E sobre aquela parte que a gente estava discutindo?",repair:"Não, não foi isso que eu quis dizer.",reference:"E isso aí, como a gente encaixa no projeto?",topic:"Aliás, deixa eu mudar de assunto: quero falar de memória externa."}[k])}
-function clearAll(){S.turns=[];S.memory=[];S.goal=S.pending=null;S.phase="opening";$("messages").innerHTML="";add("ai","Laboratório zerado. Manda uma frase.");render()}
-function exp(){let b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="roboed-session.json";a.click()}
-$("send").onclick=()=>send();$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};add("ai","Oi, Delyone. Este é o Conversation Lab. Aqui você conversa e enxerga o estado interno do motor ao mesmo tempo.");render();
-</script></body></html>
+const S={session_id:crypto.randomUUID(),started_at:new Date().toISOString(),turns:[],memory:[],topic:"conversa geral",goal:null,pending:null,phase:"opening",intent:"unknown",confidence:0};
+const $=id=>document.getElementById(id);
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+function add(role,text){
+  const e=document.createElement("div");
+  e.className="msg "+role;
+  e.innerHTML='<div class="meta">'+(role==="ai"?"Engine":"Você")+'</div><div>'+esc(text).replace(/\n/g,"<br>")+"</div>";
+  $("messages").appendChild(e);
+  $("messages").scrollTop=$("messages").scrollHeight;
+}
+
+function detect(text){
+  const t=text.toLowerCase();
+  if(/^(oi|olá|ola|hey|bom dia|boa tarde|boa noite)\b/.test(t))return["greeting",.98];
+  if(/não foi isso|nao foi isso|quis dizer|entendeu errado|errado/.test(t))return["repair",.97];
+  if(/\b(isso|aquilo|ele|ela|esse|essa|aquele|aquela)\b/.test(t))return["reference",.82];
+  if(/como faço|como eu|como funciona|o que é|qual|por que|porque/.test(t))return["question",.88];
+  if(/vamos|quero|preciso|faça|faz|crie|monta|construa/.test(t))return["task_request",.86];
+  if(/obrigad|valeu|fechou|beleza|tá bom|ta bom/.test(t))return["ack",.84];
+  return["conversation",.71];
+}
+
+function reply(text,intent){
+  if(intent==="greeting")return"Oi! 👋 Pode falar naturalmente. Este laboratório registra a conversa e mostra o estado interno.";
+  if(intent==="repair"){S.phase="repair";return"Entendi. Vou tratar sua correção como uma atualização do contexto, não como uma nova conversa."}
+  if(intent==="reference")return"Detectei um possível referente como “isso/ele/essa”. Neste protótipo ele fica marcado para resolução contextual.";
+  if(intent==="question")return"Recebi como pergunta. O próximo passo arquitetural é separar entendimento, recuperação de contexto, grounding e geração.";
+  if(intent==="task_request")return"Fechado. Registrei isso como objetivo da conversa. Depois podemos conectar planner e ferramentas.";
+  if(intent==="ack")return"Fechou. Estado mantido. Pode continuar.";
+  return"Peguei. Continue normalmente; o laboratório vai registrando intenção, contexto e memória da sessão.";
+}
+
+function render(){
+  const rows=[
+    ["tópico",S.topic],["fase",S.phase],["turnos",S.turns.length],
+    ["objetivo",S.goal||"—"],["pendência",S.pending||"—"]
+  ];
+  $("state").innerHTML=rows.map(x=>'<div class="row"><span class="k">'+x[0]+'</span><span class="v">'+esc(x[1])+"</span></div>").join("");
+
+  const u=[["intenção",S.intent],["confiança",S.confidence.toFixed(2)],
+    ["pragmática",S.intent==="repair"?"correção":"continuação"],
+    ["referência",S.intent==="reference"?"candidato detectado":"—"]];
+  $("under").innerHTML=u.map(x=>'<div class="row"><span class="k">'+x[0]+'</span><span class="v">'+x[1]+"</span></div>").join("");
+
+  $("memory").innerHTML=S.memory.slice(-6).map(m=>'<div class="row"><span class="k">'+m.role+'</span><span class="v">'+esc(m.text.slice(0,65))+"</span></div>").join("")||'<span class="k">Nenhuma memória nesta sessão.</span>';
+  $("raw").textContent=JSON.stringify(S,null,2);
+}
+
+function send(text){
+  text=(text||$("input").value).trim();
+  if(!text)return;
+  $("input").value="";
+  add("user",text);
+
+  const [intent,confidence]=detect(text);
+  S.intent=intent;S.confidence=confidence;
+  S.turns.push({role:"user",text,at:new Date().toISOString()});
+  S.memory.push({role:"user",text,at:new Date().toISOString()});
+  if(intent==="task_request")S.goal=text;
+  if(intent==="reference")S.pending="resolver referente";
+
+  $("typing").classList.add("show");
+  setTimeout(()=>{
+    const answer=reply(text,intent);
+    add("ai",answer);
+    S.turns.push({role:"assistant",text:answer,at:new Date().toISOString()});
+    S.memory.push({role:"assistant",text:answer,at:new Date().toISOString()});
+    if(intent!=="reference")S.pending=null;
+    S.phase=S.turns.length>4?"middle":"opening";
+    $("typing").classList.remove("show");
+    render();
+  },250);
+  render();
+}
+
+function sim(kind){
+  send({
+    continue:"E sobre aquela parte que a gente estava discutindo?",
+    repair:"Não, não foi isso que eu quis dizer.",
+    reference:"E isso aí, como a gente encaixa no projeto?",
+    topic:"Aliás, deixa eu mudar de assunto: quero falar de memória externa."
+  }[kind]);
+}
+
+function clearAll(){
+  S.session_id=crypto.randomUUID();
+  S.started_at=new Date().toISOString();
+  S.turns=[];S.memory=[];S.goal=null;S.pending=null;S.phase="opening";S.intent="unknown";S.confidence=0;S.topic="conversa geral";
+  $("messages").innerHTML="";
+  add("ai","Conversa limpa. Nova sessão iniciada. Pode mandar a primeira mensagem.");
+  render();
+}
+
+function generateLog(){
+  const payload={
+    project:"Human Conversation Engine",
+    session:S,
+    generated_at:new Date().toISOString(),
+    note:"Log gerado pelo Conversation Lab. O provider LLM ainda não está conectado."
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="conversation-engine-log-"+new Date().toISOString().replace(/[:.]/g,"-")+".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+$("send").onclick=()=>send();
+$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};
+add("ai","Oi, Delyone. Este é o laboratório do Human Conversation Engine. Manda uma mensagem para a gente começar a testar.");
+render();
+</script>
+</body>
+</html>

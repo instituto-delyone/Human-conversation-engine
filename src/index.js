@@ -7,3 +7,4 @@ export {resolveReferences} from "./context/reference-resolver.js";
 export {inferPragmatics} from "./pragmatics/pragmatics-engine.js";
 export {assessGrounding} from "./grounding/grounding-policy.js";
 export {validateResponse} from "./validation/response-validator.js";
+export {RuleBasedProvider} from "./providers/provider.js";\n

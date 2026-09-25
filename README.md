@@ -22,9 +22,9 @@ O repositório contém:
 
 ## Arquitetura
 
-`message → intent → context → pragmatics → policy → provider → grounding → validation → state update`
+`message → intent → context → pragmatics → policy → provider → grounding → validation → state update`\n\nO provider é substituível. O núcleo pode operar com um provider determinístico, sem LLM; providers externos são opcionais. O `RuleBasedProvider` fornece respostas conversacionais simples e não pretende responder conhecimento aberto.
 
-O LLM é o motor linguístico. O Conversation Engine controla o estado operacional da conversa.
+O Conversation Engine controla o estado operacional da conversa. O uso de LLM não é requisito arquitetural.
 
 ## Objetivo
 

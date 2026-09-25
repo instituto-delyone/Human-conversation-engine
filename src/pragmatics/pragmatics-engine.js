@@ -1,9 +1,9 @@
-const closure=/^(tá bom|ta bom|beleza|ok|certo|blz|até|ate|fechou|valeu)\\s*[.!]?$/i;
-const correction=/\\b(não|nao)\\s+(é|e)|não quis dizer|nao quis dizer|não foi isso|nao foi isso/i;
-const continuation=/\\b(e aí|então|entao|sobre isso|e outra coisa|continua|continuando)\\b/i;
-const topicChange=/\\b(mudar de assunto|mudando de assunto|outra coisa|vamos falar de outra coisa)\\b/i;
-const pause=/^(para|pare|espera|calma|pausa|um minuto)\\b/i;
-const confusion=/\\b(não entendi|nao entendi|não sei|nao sei|confuso|confusa)\\b/i;
+const closure=/^(tá bom|ta bom|beleza|ok|certo|blz|até|ate|fechou|valeu)\s*[.!]?$/i;
+const correction=/\b(não|nao)\s+(é|e)|não quis dizer|nao quis dizer|não foi isso|nao foi isso/i;
+const continuation=/\b(e aí|então|entao|sobre isso|e outra coisa|continua|continuando)\b/i;
+const topicChange=/\b(mudar de assunto|mudando de assunto|outra coisa|vamos falar de outra coisa)\b/i;
+const pause=/^(para|pare|espera|calma|pausa|um minuto)\b/i;
+const confusion=/\b(não entendi|nao entendi|não sei|nao sei|confuso|confusa)\b/i;
 
 export function inferPragmatics(text="",state={}) {
   const signals=[];
